@@ -1,2 +1,2 @@
-# markd
-Markdown Editor with real-time preview and tab support
+# tokenwise
+A GUI tool for bidirectional conversion between JSON, TOON, VSC, and CSV to optimize LLM token usage.
