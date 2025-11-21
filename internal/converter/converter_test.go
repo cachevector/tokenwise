@@ -3,6 +3,7 @@ package converter
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"os"
 	"testing"
 
@@ -30,6 +31,13 @@ func TestJSONToTOON(t *testing.T) {
 		t.Fatalf("JSONToTOON failed: %v", err)
 	}
 
+	fmt.Println("=== JSON → TOON ===")
+	fmt.Println("Expected TOON:")
+	fmt.Println(string(expectedTOON))
+	fmt.Println("Generated TOON:")
+	fmt.Println(got)
+	fmt.Println("===================")
+
 	// Semantic check: decode both TOON outputs into map[string]any
 	var wantMap, gotMap map[string]any
 	if err := toon.Unmarshal(expectedTOON, &wantMap); err != nil {
@@ -38,13 +46,10 @@ func TestJSONToTOON(t *testing.T) {
 	if err := toon.Unmarshal([]byte(got), &gotMap); err != nil {
 		t.Fatalf("failed to decode actual TOON: %v", err)
 	}
+
 	if !deepEqual(wantMap, gotMap) {
 		t.Errorf("JSONToTOON semantic mismatch")
 	}
-
-	// log exact string outputs
-	t.Logf("Expected TOON:\n%s\n", string(expectedTOON))
-	t.Logf("Generated TOON:\n%s\n", got)
 }
 
 func TestTOONToJSON(t *testing.T) {
@@ -63,12 +68,7 @@ func TestTOONToJSON(t *testing.T) {
 		t.Fatalf("TOONToJSON failed: %v", err)
 	}
 
-	// Semantic check
-	if !jsonEqual(originalJSON, []byte(got)) {
-		t.Errorf("TOONToJSON semantic mismatch")
-	}
-
-	// pretty-print and log outputs for inspection
+	// Pretty-print original and generated JSON
 	var origPretty, gotPretty bytes.Buffer
 	if err := json.Indent(&origPretty, originalJSON, "", "  "); err != nil {
 		t.Fatalf("failed to indent original JSON: %v", err)
@@ -77,8 +77,18 @@ func TestTOONToJSON(t *testing.T) {
 		t.Fatalf("failed to indent generated JSON: %v", err)
 	}
 
-	t.Logf("Original JSON:\n%s\n", origPretty.String())
-	t.Logf("Generated JSON:\n%s\n", gotPretty.String())
+	// print the outputs
+	fmt.Println("=== TOON → JSON ===")
+	fmt.Println("Original JSON:")
+	fmt.Println(origPretty.String())
+	fmt.Println("Generated JSON:")
+	fmt.Println(gotPretty.String())
+	fmt.Println("===================")
+
+	// Semantic check
+	if !jsonEqual(originalJSON, []byte(got)) {
+		t.Errorf("TOONToJSON semantic mismatch")
+	}
 }
 
 func TestRoundTrip(t *testing.T) {
