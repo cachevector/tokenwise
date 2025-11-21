@@ -1,0 +1,27 @@
+{
+  "api": {
+    "version": "2.1.0",
+    "endpoints": [
+      {
+        "path": "/users",
+        "methods": ["GET", "POST"],
+        "authRequired": true
+      },
+      {
+        "path": "/products",
+        "methods": ["GET", "POST", "PUT", "DELETE"],
+        "authRequired": true
+      },
+      {
+        "path": "/health",
+        "methods": ["GET"],
+        "authRequired": false
+      }
+    ],
+    "rateLimit": {
+      "requestsPerMinute": 100,
+      "burstSize": 20
+    },
+    "status": "operational"
+  }
+}

@@ -1,0 +1,16 @@
+api:
+  version: 2.1.0
+  endpoints[#3]:
+    - path: /users
+      methods[#2]: GET,POST
+      authRequired: true
+    - path: /products
+      methods[#4]: GET,POST,PUT,DELETE
+      authRequired: true
+    - path: /health
+      methods[#1]: GET
+      authRequired: false
+  rateLimit:
+    requestsPerMinute: 100
+    burstSize: 20
+  status: operational
