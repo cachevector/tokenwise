@@ -31,5 +31,6 @@ test.txt
 *.out
 
 /tmp
+/bin
 
 temp.*

@@ -2,63 +2,79 @@ package main
 
 import (
 	"fmt"
+	"image/color"
 	"log"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 
 	"tokenwise/internal/converter"
 	"tokenwise/internal/tokenizer"
 )
 
+// -------------- GREEN THEME -----------------
+
+type greenTheme struct{}
+
+func (greenTheme) Color(n fyne.ThemeColorName, v fyne.ThemeVariant) color.Color {
+	if n == theme.ColorNamePrimary {
+		return color.NRGBA{0, 150, 0, 255} // GREEN
+	}
+	return theme.DefaultTheme().Color(n, v)
+}
+func (greenTheme) Font(s fyne.TextStyle) fyne.Resource {
+	return theme.DefaultTheme().Font(s)
+}
+func (greenTheme) Icon(n fyne.ThemeIconName) fyne.Resource {
+	return theme.DefaultTheme().Icon(n)
+}
+func (greenTheme) Size(n fyne.ThemeSizeName) float32 {
+	return theme.DefaultTheme().Size(n)
+}
+
+// -------------------------------------------
+
 func main() {
 	a := app.New()
+	a.Settings().SetTheme(&greenTheme{})
 	w := a.NewWindow("TokenWise")
 	w.Resize(fyne.NewSize(900, 600))
 
 	inputEntry := widget.NewMultiLineEntry()
 	inputEntry.SetPlaceHolder("Paste your input here...")
-	outputEntry := widget.NewMultiLineEntry()
-	outputEntry.SetPlaceHolder("Output will appear here...")
-	outputEntry.Disable()
 
-	var inputFormat, outputFormat *widget.Select
+	outputLabel := widget.NewLabel("")
+	outputLabel.Wrapping = fyne.TextWrapWord
+	outputPane := container.NewVScroll(outputLabel)
+
 	formatOptions := []string{"JSON", "TOON"}
-	inputFormat = widget.NewSelect(formatOptions, func(string) { updateConversion(inputEntry, outputEntry, inputFormat.Selected, outputFormat.Selected) })
+	inputFormat := widget.NewSelect(formatOptions, nil)
 	inputFormat.Selected = "JSON"
-	outputFormat = widget.NewSelect(formatOptions, func(string) { updateConversion(inputEntry, outputEntry, inputFormat.Selected, outputFormat.Selected) })
+	outputFormat := widget.NewSelect(formatOptions, nil)
 	outputFormat.Selected = "TOON"
 
 	inputTokens := widget.NewLabel("Input Tokens: 0")
 	outputTokens := widget.NewLabel("Output Tokens: 0")
 	tokensSaved := widget.NewLabel("Tokens Saved: 0")
 
-	inputEntry.OnChanged = func(_ string) {
-		updateConversion(inputEntry, outputEntry, inputFormat.Selected, outputFormat.Selected)
-
-		inTokens, err := tokenizer.TokenCount(inputEntry.Text, "gpt-4")
-		if err != nil {
-			log.Fatal(err)
-		}
-		outTokens, err := tokenizer.TokenCount(outputEntry.Text, "gpt-4")
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		inputTokens.SetText(fmt.Sprintf("Input Tokens: %d", inTokens))
-		outputTokens.SetText(fmt.Sprintf("Output Tokens: %d", outTokens))
-		tokensSaved.SetText(fmt.Sprintf("Tokens Saved: %d", inTokens-outTokens))
-	}
+	convertBtn := widget.NewButtonWithIcon("Convert", theme.ConfirmIcon(), func() {
+		runConversion(
+			inputEntry.Text, inputFormat.Selected, outputFormat.Selected,
+			outputLabel, inputTokens, outputTokens, tokensSaved,
+		)
+	})
 
 	formatContainer := container.NewHBox(
 		widget.NewLabel("Input Format:"), inputFormat,
 		widget.NewLabel("Output Format:"), outputFormat,
+		convertBtn,
 	)
 
 	tokensContainer := container.NewHBox(inputTokens, outputTokens, tokensSaved)
-	panes := container.NewHSplit(inputEntry, outputEntry)
+	panes := container.NewHSplit(inputEntry, outputPane)
 	panes.Offset = 0.5
 
 	content := container.NewBorder(formatContainer, tokensContainer, nil, nil, panes)
@@ -67,10 +83,12 @@ func main() {
 	w.ShowAndRun()
 }
 
-func updateConversion(inputEntry, outputEntry *widget.Entry, inFmt, outFmt string) {
-	input := inputEntry.Text
+func runConversion(input, inFmt, outFmt string,
+	outputLabel *widget.Label,
+	inputTokens, outputTokens, tokensSaved *widget.Label) {
+
 	if input == "" {
-		outputEntry.SetText("")
+		outputLabel.SetText("")
 		return
 	}
 
@@ -87,8 +105,24 @@ func updateConversion(inputEntry, outputEntry *widget.Entry, inFmt, outFmt strin
 	}
 
 	if err != nil {
-		outputEntry.SetText(fmt.Sprintf("Conversion error: %v", err))
-	} else {
-		outputEntry.SetText(result)
+		outputLabel.SetText(fmt.Sprintf("Conversion error: %v", err))
+		return
 	}
+
+	outputLabel.SetText(result)
+
+	inTokens, err := tokenizer.TokenCount(input, "gpt-4")
+	if err != nil {
+		log.Println("Token count error:", err)
+		return
+	}
+	outTokens, err := tokenizer.TokenCount(result, "gpt-4")
+	if err != nil {
+		log.Println("Token count error:", err)
+		return
+	}
+
+	inputTokens.SetText(fmt.Sprintf("Input Tokens: %d", inTokens))
+	outputTokens.SetText(fmt.Sprintf("Output Tokens: %d", outTokens))
+	tokensSaved.SetText(fmt.Sprintf("Tokens Saved: %d", inTokens-outTokens))
 }
