@@ -20,17 +20,23 @@ import (
 type greenTheme struct{}
 
 func (greenTheme) Color(n fyne.ThemeColorName, v fyne.ThemeVariant) color.Color {
-	if n == theme.ColorNamePrimary {
-		return color.NRGBA{0, 150, 0, 255} // GREEN
+	switch n {
+	case theme.ColorNamePrimary:
+		return color.NRGBA{0, 85, 119, 255}
+	case theme.ColorNameButton:
+		return color.NRGBA{0, 85, 119, 255}
 	}
 	return theme.DefaultTheme().Color(n, v)
 }
+
 func (greenTheme) Font(s fyne.TextStyle) fyne.Resource {
 	return theme.DefaultTheme().Font(s)
 }
+
 func (greenTheme) Icon(n fyne.ThemeIconName) fyne.Resource {
 	return theme.DefaultTheme().Icon(n)
 }
+
 func (greenTheme) Size(n fyne.ThemeSizeName) float32 {
 	return theme.DefaultTheme().Size(n)
 }
@@ -60,12 +66,14 @@ func main() {
 	outputTokens := widget.NewLabel("Output Tokens: 0")
 	tokensSaved := widget.NewLabel("Tokens Saved: 0")
 
-	convertBtn := widget.NewButtonWithIcon("Convert", theme.ConfirmIcon(), func() {
+	convertBtn := widget.NewButton("Convert", func() {
 		runConversion(
 			inputEntry.Text, inputFormat.Selected, outputFormat.Selected,
 			outputLabel, inputTokens, outputTokens, tokensSaved,
 		)
 	})
+
+	convertBtn.Importance = widget.HighImportance
 
 	formatContainer := container.NewHBox(
 		widget.NewLabel("Input Format:"), inputFormat,
