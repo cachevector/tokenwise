@@ -13,15 +13,3 @@ func TokenCount(text string, model string) (int, error) {
 	tokens := tk.Encode(text, nil, nil) // allowedSpecial, disallowedSpecial = nil (default)
 	return len(tokens), nil
 }
-
-/*
-func main() {
-	text := `{"users":[{"id":1,"name":"Alice"}]}` // TODO
-	count, err := TokenCount(text, "gpt-4o")
-
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Printf("Token count: %d\n", count)
-}
-*/
