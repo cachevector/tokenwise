@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"image/color"
 	"log"
@@ -10,6 +11,7 @@ import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
+	"github.com/toon-format/toon-go"
 
 	"tokenwise/internal/converter"
 	"tokenwise/internal/tokenizer"
@@ -108,8 +110,23 @@ func runConversion(input, inFmt, outFmt string,
 		result, err = converter.JSONToTOON(input)
 	case inFmt == "TOON" && outFmt == "JSON":
 		result, err = converter.TOONToJSON(input)
-	default:
+	case inFmt == "JSON" && outFmt == "JSON":
+		var tmp map[string]any
+		if err = json.Unmarshal([]byte(input), &tmp); err != nil {
+			err = fmt.Errorf("invalid JSON input")
+			break
+		}
 		result = input
+	case inFmt == "TOON" && outFmt == "TOON":
+		var tmp map[string]any
+		if err = toon.Unmarshal([]byte(input), &tmp); err != nil {
+			err = fmt.Errorf("invalid TOON input")
+			break
+		}
+		result = input
+
+	default:
+		err = fmt.Errorf("unsupported format combination")
 	}
 
 	if err != nil {
@@ -132,5 +149,9 @@ func runConversion(input, inFmt, outFmt string,
 
 	inputTokens.SetText(fmt.Sprintf("Input Tokens: %d", inTokens))
 	outputTokens.SetText(fmt.Sprintf("Output Tokens: %d", outTokens))
-	tokensSaved.SetText(fmt.Sprintf("Tokens Saved: %d", inTokens-outTokens))
+	if inTokens >= outTokens {
+		tokensSaved.SetText(fmt.Sprintf("Tokens Saved: %d", inTokens-outTokens))
+	} else {
+		tokensSaved.SetText(fmt.Sprintf("Extra Tokens: %d", outTokens-inTokens))
+	}
 }
