@@ -6,21 +6,9 @@ import (
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/theme"
+
+	"tokenwise/assets"
 )
-
-//go:embed fonts/JetBrainsMono-Regular.ttf
-var jetbrainsRegular []byte
-
-//go:embed fonts/JetBrainsMono-Bold.ttf
-var jetbrainsBold []byte
-
-func RegularFont() fyne.Resource {
-	return fyne.NewStaticResource("JetBrainsMono-Regular", jetbrainsRegular)
-}
-
-func BoldFont() fyne.Resource {
-	return fyne.NewStaticResource("JetBrainsMono-Bold", jetbrainsBold)
-}
 
 type CustomTheme struct{}
 
@@ -34,9 +22,9 @@ func (CustomTheme) Color(n fyne.ThemeColorName, v fyne.ThemeVariant) color.Color
 
 func (CustomTheme) Font(s fyne.TextStyle) fyne.Resource {
 	if s.Bold {
-		return BoldFont()
+		return assets.BoldFont()
 	}
-	return RegularFont()
+	return assets.RegularFont()
 }
 
 func (CustomTheme) Icon(n fyne.ThemeIconName) fyne.Resource {
@@ -46,7 +34,7 @@ func (CustomTheme) Icon(n fyne.ThemeIconName) fyne.Resource {
 func (CustomTheme) Size(n fyne.ThemeSizeName) float32 {
 	switch n {
 	case theme.SizeNameText:
-		return 12 // normal text
+		return 12
 	case theme.SizeNameHeadingText:
 		return 16
 	case theme.SizeNameSubHeadingText:

@@ -1,9 +1,9 @@
 package main
 
 import (
+	_ "embed"
 	"encoding/json"
 	"fmt"
-
 	"log"
 
 	"fyne.io/fyne/v2"
@@ -12,6 +12,7 @@ import (
 	"fyne.io/fyne/v2/widget"
 	"github.com/toon-format/toon-go"
 
+	"tokenwise/assets"
 	"tokenwise/internal/converter"
 	"tokenwise/internal/tokenizer"
 	"tokenwise/theme"
@@ -22,6 +23,7 @@ func main() {
 	a.Settings().SetTheme(&theme.CustomTheme{})
 	w := a.NewWindow("TokenWise")
 	w.Resize(fyne.NewSize(900, 600))
+	w.SetIcon(assets.GetAppIcon())
 
 	inputEntry := widget.NewMultiLineEntry()
 	inputEntry.SetPlaceHolder("Paste your input here...")
