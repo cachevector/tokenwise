@@ -3,51 +3,23 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"image/color"
+
 	"log"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
-	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 	"github.com/toon-format/toon-go"
 
 	"tokenwise/internal/converter"
 	"tokenwise/internal/tokenizer"
+	"tokenwise/theme"
 )
-
-// -------------- GREEN THEME -----------------
-
-type greenTheme struct{}
-
-func (greenTheme) Color(n fyne.ThemeColorName, v fyne.ThemeVariant) color.Color {
-	switch n {
-	case theme.ColorNamePrimary:
-		return color.NRGBA{0, 85, 119, 255}
-	case theme.ColorNameButton:
-		return color.NRGBA{0, 85, 119, 255}
-	}
-	return theme.DefaultTheme().Color(n, v)
-}
-
-func (greenTheme) Font(s fyne.TextStyle) fyne.Resource {
-	return theme.DefaultTheme().Font(s)
-}
-
-func (greenTheme) Icon(n fyne.ThemeIconName) fyne.Resource {
-	return theme.DefaultTheme().Icon(n)
-}
-
-func (greenTheme) Size(n fyne.ThemeSizeName) float32 {
-	return theme.DefaultTheme().Size(n)
-}
-
-// -------------------------------------------
 
 func main() {
 	a := app.New()
-	a.Settings().SetTheme(&greenTheme{})
+	a.Settings().SetTheme(&theme.CustomTheme{})
 	w := a.NewWindow("TokenWise")
 	w.Resize(fyne.NewSize(900, 600))
 
